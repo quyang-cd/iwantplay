@@ -1,0 +1,54 @@
+/* map style */
+#iCenter{
+	width:100%;
+}
+.ui-fixed-hidden {
+	position:fixed;
+}
+#chattime {
+	text-align:center;
+	font-size:0.5em;
+	color:rgb(142, 146, 146);
+}
+#wrapper {
+	position:absolute; 
+	overflow:auto;
+	bottom:50px;
+	top:45px;
+}
+/*------------- S 以下css主要是仿IOS滚动条样式(可选样式)  -------------*/		
+
+/**
+ * Vertical Scrollbar
+ */
+.myScrollbarV {
+	position:absolute;
+	z-index:100;
+	width:7px;bottom:7px;top:2px;right:1px
+}
+
+.myScrollbarV > div {
+	width:100%;
+}
+
+/**
+ * Both Scrollbars
+ */
+.myScrollbarH > div,
+.myScrollbarV > div {
+	position:absolute;
+	z-index:100;
+
+	/* The following is probably what you want to customize */
+	-webkit-box-sizing:border-box;
+	-moz-box-sizing:border-box;
+	-o-box-sizing:border-box;
+	box-sizing:border-box;
+	
+	border-width:3px;
+	-webkit-border-image:url(images/scrollbar.png) 6 6 6 6;
+	-moz-border-image:url(images/scrollbar.png) 6 6 6 6;
+	-o-border-image:url(images/scrollbar.png) 6 6 6 6;
+	border-image:url(images/scrollbar.png) 6 6 6 6;
+}
+/*------------- E 以上css主要是仿IOS滚动条样式  -------------*/

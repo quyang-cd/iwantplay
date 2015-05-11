@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jintli.iwantplay.mapper.ActivityMapper"> 
+
+	<select id="getActivitiesByRange" parameterType="map" resultType="Activity">
+		SELECT id,atype,leader,addr,lng,lat,addrlng,addrlat,atime,starttime,
+		DATE_FORMAT(starttime,'%Y-%m-%d %H:%i:%S') AS starttimestr,endtime,description
+		,activityname,gathertime,numlimit 
+		FROM activity 
+		WHERE #{maxLat}>=addrlat AND addrlat>=#{minLat}
+        	AND #{maxLng}>=addrlng AND addrlng>=#{minLng}
+        	and endtime > NOW() 
+        	<if test="username !=null and username != ''">
+		   		<![CDATA[
+	        		and leader <> #{username}
+	        	]]>
+		  	</if>
+        order by endtime asc
+	</select>
+	
+	<select id="getActivitiesForInstance" parameterType="map" resultType="Activity">
+		SELECT id,atype,leader,addr,lng,lat,addrlng,addrlat,atime,starttime,
+		DATE_FORMAT(starttime,'%Y-%m-%d %H:%i:%S') AS starttimestr,endtime,description 
+		,activityname,gathertime,numlimit 
+		FROM activity 
+		WHERE endtime > NOW() 
+        	<if test="username !=null and username != ''">
+		   		<![CDATA[
+	        		and leader <> #{username}
+	        	]]>
+		  	</if>
+		  	<if test="keyword !=null and keyword != ''">
+		   		<![CDATA[
+	        		and activityname like '%${keyword}%'
+	        	]]>
+		  	</if>
+        ORDER BY ((addrlng-#{lng})*(addrlng-#{lng}) + (addrlat-#{lat})*(addrlat-#{lat}))
+		LIMIT #{pageIndex},#{pageNum}
+	</select>
+	
+	<insert id="saveActivity" parameterType="Activity" statementType="PREPARED">
+		<![CDATA[
+			insert into activity (atype,lng,lat,addrlng,addrlat,leader,addr,atime,starttime,endtime,description,activityname,gathertime,numlimit )
+			values (#{atype},#{lng},#{lat},#{addrlng},#{addrlat},#{leader},#{addr},#{atime},now(),#{endtime},#{description},#{activityname},#{gathertime},#{numlimit} )
+		]]>
+		<selectKey resultType="int" keyProperty="id">
+         	<![CDATA[SELECT LAST_INSERT_ID() AS ID ]]>
+     	</selectKey>
+	</insert>
+	
+	<insert id="saveActivityGroup" parameterType="ActivityGroup" statementType="PREPARED">
+		<![CDATA[
+			insert into activity_group (aid,uname,ulng,ulat,jointime)
+			values (#{aid},#{uname},#{ulng},#{ulat},now())
+		]]>
+	</insert>
+	
+	<select id="getActivityById" parameterType="string" resultType="Activity">
+		select 
+			id, atype, lng, lat ,addrlng,addrlat,leader, addr, atime, starttime, 
+			DATE_FORMAT(starttime,'%Y-%m-%d %H:%i:%S') AS starttimestr,endtime, description
+			,activityname,gathertime,numlimit
+		from 
+			activity
+		where
+			id = #{id}
+	</select>
+	
+	<select id="getActivityGroup" parameterType="int" resultType="ActivityGroup">
+		SELECT aid,uname,ulng,ulat,jointime,
+		DATE_FORMAT(jointime,'%Y-%m-%d %H:%i:%S') AS jointimestr 
+		FROM activity_group 
+		WHERE aid = #{aid}
+        order by jointime desc
+	</select>
+	
+	<select id="getSponseActivities" parameterType="map" resultType="Activity">
+	<![CDATA[
+		SELECT id,atype,leader,addr,lng,lat,addrlng,addrlat,atime,starttime,endtime,description
+		,activityname,gathertime,numlimit 
+		FROM activity 
+		WHERE endtime > NOW() and leader = #{username}
+        order by endtime asc
+    ]]>
+	</select>
+	
+	<select id="getPartinActivities" parameterType="map" resultType="Activity">
+	<![CDATA[
+		SELECT a.*
+		FROM activity_group ag,activity a WHERE ag.aid = a.`id`
+		AND ag.uname = #{username} AND a.endtime > NOW()
+        order by a.endtime asc
+    ]]>
+	</select>
+	
+	<select id="isUserInThisActivityGroup" parameterType="map" resultType="int">
+	<![CDATA[
+		SELECT COUNT(1) FROM activity_group g
+		WHERE g.aid=#{aid} AND g.uname = #{username}
+		AND EXISTS (SELECT 1 FROM activity WHERE id = g.`aid` AND endtime > NOW())
+    ]]>
+	</select>
+	
+</mapper>

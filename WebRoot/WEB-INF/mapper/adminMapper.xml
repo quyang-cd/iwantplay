@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="jintli.iwantplay.mapper.AdminMapper"> 
+
+	<select id="getAdmin" parameterType="string" resultType="Admin">
+		select 
+			id, name, password, effective ,registdate, lastlogintime
+		from 
+			user
+		where
+			name = #{name}
+	</select>
+	
+	<insert id="addLog"  parameterType="map" statementType="PREPARED" useGeneratedKeys="true">
+		insert into log (info, time)
+		values (#{info}, #{time} )
+	</insert>
+
+	<update id="updateLastLoginTime" parameterType="Admin" statementType="PREPARED">
+		update user set lastlogintime = #{lastlogintime} where id = #{id}
+	</update>
+	
+	<insert id="saveAdmin" parameterType="Admin" statementType="PREPARED">
+		insert into user (name,password,registdate,effective,lastlogintime)
+		values (#{name},#{password},now(),1,now())
+	</insert>
+	
+</mapper>
